@@ -57,14 +57,15 @@ int tree_count(struct node *root) {
 
 void tree_to_array(struct arr_node arr[], int *i, struct node *root, int parent) {
   strcpy(arr[*i].data, root->data);
-  arr[*i].parent = parent-1;
+  arr[*i].parent = parent;
+  int cur_i = *i;
   if (root->l != NULL) { 
     (*i)++;
-    tree_to_array(arr, i, root->l, parent+1);
+    tree_to_array(arr, i, root->l, cur_i);
   }
   if (root->r != NULL) {
     (*i)++;
-    tree_to_array(arr, i, root->r, parent+1);
+    tree_to_array(arr, i, root->r, cur_i);
   }
 }
 
@@ -101,7 +102,7 @@ void create_and_save_tree() {
   int tree_len = tree_count(root);
   struct arr_node arr[tree_len];
   int i = 0;
-  tree_to_array(arr, &i, root, 0);
+  tree_to_array(arr, &i, root, -1);
   FILE * fp = fopen("tree.dat", "wb");
   fwrite(&tree_len, sizeof(int), 1, fp);
   fwrite(arr, sizeof(struct arr_node), tree_len, fp);
@@ -119,6 +120,10 @@ void read_tree() {
   fread(arr, sizeof(struct arr_node), tree_len, fp);
   fclose(fp);
   struct node *root = array_to_tree(arr, tree_len);
+  if (root == NULL) {
+    printf("Ошибка в чтении файла");
+    return;
+  }
   printf("Из файла загружено дерево: ");
   symmetry_print(root); printf("\n");
   tree_print(root);
